@@ -6,6 +6,7 @@ sealed class Route(val route: String) {
     data object Templates : Route("templates")
     data object Stats : Route("stats")
     data object Scanner : Route("scanner")
+    data object Settings : Route("settings")
 
     data object WorkoutExercise : Route("workout/exercise/{workoutExerciseId}") {
         fun create(workoutExerciseId: Long): String = "workout/exercise/$workoutExerciseId"

@@ -5,6 +5,7 @@ import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ViewAgenda
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,6 +32,7 @@ import com.mostgymapp.app.ui.screen.templates.TemplateDetailScreen
 import com.mostgymapp.app.ui.screen.templates.TemplatesScreen
 import com.mostgymapp.app.ui.screen.scanner.ScannerScreen
 import com.mostgymapp.app.ui.screen.workout.WorkoutExerciseScreen
+import com.mostgymapp.app.ui.screen.settings.SettingsScreen
 import com.mostgymapp.app.ui.screen.workout.WorkoutScreen
 
 @Composable
@@ -42,7 +44,8 @@ fun WorkoutLogAppRoot() {
         BottomItem(Route.History.route, "History", Icons.AutoMirrored.Filled.List),
         BottomItem(Route.Templates.route, "Templates", Icons.Default.ViewAgenda),
         BottomItem(Route.Scanner.route, "Scanner", Icons.Default.QrCodeScanner),
-        BottomItem(Route.Stats.route, "Stats", Icons.Default.BarChart)
+        BottomItem(Route.Stats.route, "Stats", Icons.Default.BarChart),
+        BottomItem(Route.Settings.route, "Settings", Icons.Default.Settings)
     )
 
     Scaffold(
@@ -156,6 +159,10 @@ fun WorkoutLogAppRoot() {
 
             composable(Route.Stats.route) {
                 StatsScreen(paddingValues = paddingValues)
+            }
+
+            composable(Route.Settings.route) {
+                SettingsScreen(paddingValues = paddingValues)
             }
         }
     }
