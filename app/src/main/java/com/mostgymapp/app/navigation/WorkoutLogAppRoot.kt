@@ -14,6 +14,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -42,7 +43,7 @@ fun WorkoutLogAppRoot() {
     val bottomItems = listOf(
         BottomItem(Route.Workout.route, "Workout", Icons.Default.FitnessCenter),
         BottomItem(Route.History.route, "History", Icons.AutoMirrored.Filled.List),
-        BottomItem(Route.Templates.route, "Templates", Icons.Default.ViewAgenda),
+        BottomItem(Route.Templates.route, "Tmpls", Icons.Default.ViewAgenda),
         BottomItem(Route.Scanner.route, "Scanner", Icons.Default.QrCodeScanner),
         BottomItem(Route.Stats.route, "Stats", Icons.Default.BarChart),
         BottomItem(Route.Settings.route, "Settings", Icons.Default.Settings)
@@ -69,7 +70,14 @@ fun WorkoutLogAppRoot() {
                             }
                         },
                         icon = { Icon(item.icon, contentDescription = item.label) },
-                        label = { Text(item.label, style = MaterialTheme.typography.labelSmall) },
+                        label = {
+                            Text(
+                                item.label,
+                                style = MaterialTheme.typography.labelSmall,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = MaterialTheme.colorScheme.primary,
                             selectedTextColor = MaterialTheme.colorScheme.primary,
