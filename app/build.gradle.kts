@@ -11,6 +11,16 @@ android {
     namespace = "com.mostgymapp.app"
     compileSdk = 35
 
+    signingConfigs {
+        create("release") {
+            val env = System.getenv()
+            storeFile = file(env.getOrDefault("SIGNING_STORE_FILE", "../mostgym-release.jks"))
+            storePassword = env.getOrDefault("SIGNING_STORE_PASSWORD", "12345678")
+            keyAlias = env.getOrDefault("SIGNING_KEY_ALIAS", "mostgym")
+            keyPassword = env.getOrDefault("SIGNING_KEY_PASSWORD", "12345678")
+        }
+    }
+
     defaultConfig {
         applicationId = "com.mostgymapp.app"
         minSdk = 26
@@ -39,6 +49,7 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

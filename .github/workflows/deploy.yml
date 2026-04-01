@@ -1,0 +1,62 @@
+name: Build & Deploy to Google Play
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Decode google-services.json
+        run: echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > app/google-services.json
+
+      - name: Decode Keystore
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/mostgym-release.jks
+
+      - name: Build Release AAB
+        run: ./gradlew bundleRelease
+        env:
+          SIGNING_STORE_FILE: mostgym-release.jks
+          SIGNING_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          SIGNING_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Sign AAB
+        run: |
+          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
+            -keystore app/mostgym-release.jks \
+            -storepass "${{ secrets.KEYSTORE_PASSWORD }}" \
+            -keypass "${{ secrets.KEY_PASSWORD }}" \
+            app/build/outputs/bundle/release/app-release.aab \
+            "${{ secrets.KEY_ALIAS }}"
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: app/build/outputs/bundle/release/app-release.aab
+
+      - name: Deploy to Google Play (Internal Testing)
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.mostgymapp.app
+          releaseFiles: app/build/outputs/bundle/release/app-release.aab
+          track: internal
+          status: completed
