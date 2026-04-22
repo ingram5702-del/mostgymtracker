@@ -35,3 +35,7 @@
 # Protobuf (used by Firebase/gRPC)
 -dontwarn com.google.protobuf.**
 -keep class * extends com.google.protobuf.GeneratedMessageLite { *; }
+
+# PostHog
+-keep class com.posthog.** { *; }
+-dontwarn com.posthog.**

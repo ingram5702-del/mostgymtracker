@@ -16,6 +16,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -26,6 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.mostgymapp.app.analytics.Analytics
 import com.mostgymapp.app.ui.screen.history.HistoryDetailScreen
 import com.mostgymapp.app.ui.screen.history.HistoryScreen
 import com.mostgymapp.app.ui.screen.stats.StatsScreen
@@ -96,6 +98,7 @@ fun WorkoutLogAppRoot() {
             modifier = Modifier
         ) {
             composable(Route.Workout.route) {
+                TrackScreen(Analytics.Screen.WORKOUT)
                 WorkoutScreen(
                     paddingValues = paddingValues,
                     onOpenExercise = { workoutExerciseId ->
@@ -108,6 +111,7 @@ fun WorkoutLogAppRoot() {
                 arguments = listOf(navArgument("workoutExerciseId") { type = NavType.LongType })
             ) { backStackEntry ->
                 val workoutExerciseId = backStackEntry.arguments?.getLong("workoutExerciseId") ?: return@composable
+                TrackScreen(Analytics.Screen.WORKOUT_EXERCISE)
                 WorkoutExerciseScreen(
                     paddingValues = paddingValues,
                     workoutExerciseId = workoutExerciseId,
@@ -116,6 +120,7 @@ fun WorkoutLogAppRoot() {
             }
 
             composable(Route.History.route) {
+                TrackScreen(Analytics.Screen.HISTORY)
                 HistoryScreen(
                     paddingValues = paddingValues,
                     onOpenDetails = { workoutId -> navController.navigate(Route.HistoryDetail.create(workoutId)) }
@@ -126,6 +131,7 @@ fun WorkoutLogAppRoot() {
                 arguments = listOf(navArgument("workoutId") { type = NavType.LongType })
             ) { backStackEntry ->
                 val workoutId = backStackEntry.arguments?.getLong("workoutId") ?: return@composable
+                TrackScreen(Analytics.Screen.HISTORY_DETAIL)
                 HistoryDetailScreen(
                     workoutId = workoutId,
                     paddingValues = paddingValues,
@@ -134,6 +140,7 @@ fun WorkoutLogAppRoot() {
             }
 
             composable(Route.Templates.route) {
+                TrackScreen(Analytics.Screen.TEMPLATES)
                 TemplatesScreen(
                     paddingValues = paddingValues,
                     onOpenTemplate = { templateId -> navController.navigate(Route.TemplateDetail.create(templateId)) },
@@ -149,6 +156,7 @@ fun WorkoutLogAppRoot() {
                 arguments = listOf(navArgument("templateId") { type = NavType.LongType })
             ) { backStackEntry ->
                 val templateId = backStackEntry.arguments?.getLong("templateId") ?: return@composable
+                TrackScreen(Analytics.Screen.TEMPLATE_DETAIL)
                 TemplateDetailScreen(
                     templateId = templateId,
                     paddingValues = paddingValues,
@@ -162,14 +170,17 @@ fun WorkoutLogAppRoot() {
             }
 
             composable(Route.Scanner.route) {
+                TrackScreen(Analytics.Screen.SCANNER)
                 ScannerScreen(paddingValues = paddingValues)
             }
 
             composable(Route.Stats.route) {
+                TrackScreen(Analytics.Screen.STATS)
                 StatsScreen(paddingValues = paddingValues)
             }
 
             composable(Route.Settings.route) {
+                TrackScreen(Analytics.Screen.SETTINGS)
                 SettingsScreen(paddingValues = paddingValues)
             }
         }
@@ -181,3 +192,8 @@ private data class BottomItem(
     val label: String,
     val icon: androidx.compose.ui.graphics.vector.ImageVector
 )
+
+@Composable
+private fun TrackScreen(name: String) {
+    LaunchedEffect(name) { Analytics.screen(name) }
+}

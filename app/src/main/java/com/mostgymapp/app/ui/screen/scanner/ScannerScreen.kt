@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.mostgymapp.app.analytics.Analytics
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
@@ -111,6 +112,7 @@ fun ScannerScreen(paddingValues: PaddingValues) {
                     onQrCodeScanned = { url ->
                         if (url != lastScannedUrl) {
                             lastScannedUrl = url
+                            Analytics.capture(Analytics.Event.QR_CODE_SCANNED)
                         }
                     }
                 )
@@ -179,6 +181,7 @@ fun ScannerScreen(paddingValues: PaddingValues) {
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Button(
                                     onClick = {
+                                        Analytics.capture(Analytics.Event.QR_CODE_OPENED)
                                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                                         context.startActivity(intent)
                                     }

@@ -21,6 +21,7 @@ firebaseBom = "32.7.2"
 googleServices = "4.4.0"
 mlkitBarcodeScanning = "17.3.0"
 camerax = "1.4.0"
+posthog = "3.+"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -63,6 +64,7 @@ camerax-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", vers
 camerax-view = { group = "androidx.camera", name = "camera-view", version.ref = "camerax" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx" }
+posthog-android = { group = "com.posthog", name = "posthog-android", version.ref = "posthog" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

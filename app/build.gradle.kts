@@ -25,8 +25,8 @@ android {
         applicationId = "com.mostgymapp.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -111,6 +111,8 @@ dependencies {
     implementation(libs.camerax.camera2)
     implementation(libs.camerax.lifecycle)
     implementation(libs.camerax.view)
+
+    implementation(libs.posthog.android)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

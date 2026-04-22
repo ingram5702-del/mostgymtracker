@@ -2,6 +2,7 @@ package com.mostgymapp.app.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mostgymapp.app.analytics.Analytics
 import com.mostgymapp.app.domain.model.AddSetInput
 import com.mostgymapp.app.domain.model.LastSetValues
 import com.mostgymapp.app.domain.repository.ExerciseRepository
@@ -66,16 +67,37 @@ class ActiveWorkoutViewModel @Inject constructor(
     fun startWorkout(note: String? = null) {
         viewModelScope.launch {
             runCatching { startWorkoutUseCase(note) }
+                .onSuccess {
+                    Analytics.capture(
+                        Analytics.Event.WORKOUT_STARTED,
+                        mapOf("has_note" to (note?.isNotBlank() == true))
+                    )
+                }
                 .onFailure { emitError(it.message ?: "Failed to start workout") }
         }
     }
 
     fun finishWorkout() {
-        val workoutId = uiState.value.activeWorkout?.workoutId ?: return
+        val activeWorkout = uiState.value.activeWorkout ?: return
+        val workoutId = activeWorkout.workoutId
+        val exerciseCount = activeWorkout.exercises.size
+        val setCount = activeWorkout.exercises.sumOf { it.sets.size }
+        val completedSetCount = activeWorkout.exercises.sumOf { ex -> ex.sets.count { it.isCompleted } }
+        val durationSeconds = ((System.currentTimeMillis() - activeWorkout.startTime) / 1000L).coerceAtLeast(0)
         viewModelScope.launch {
             runCatching {
                 finishWorkoutUseCase(workoutId)
                 restTimerManager.cancel()
+            }.onSuccess {
+                Analytics.capture(
+                    Analytics.Event.WORKOUT_FINISHED,
+                    mapOf(
+                        "exercise_count" to exerciseCount,
+                        "set_count" to setCount,
+                        "completed_set_count" to completedSetCount,
+                        "duration_seconds" to durationSeconds
+                    )
+                )
             }.onFailure { emitError(it.message ?: "Failed to finish workout") }
         }
     }
@@ -84,6 +106,12 @@ class ActiveWorkoutViewModel @Inject constructor(
         val workoutId = uiState.value.activeWorkout?.workoutId ?: return
         viewModelScope.launch {
             runCatching { workoutRepository.addExerciseToWorkout(workoutId = workoutId, exerciseName = name) }
+                .onSuccess {
+                    Analytics.capture(
+                        Analytics.Event.WORKOUT_EXERCISE_ADDED,
+                        mapOf("exercise_name" to name)
+                    )
+                }
                 .onFailure { emitError(it.message ?: "Failed to add exercise") }
         }
     }
@@ -127,6 +155,17 @@ class ActiveWorkoutViewModel @Inject constructor(
                 restTimerManager.start(restSeconds)
                 refreshSuggestion(workoutExerciseId)
                 refreshInsights(workoutExerciseId)
+            }.onSuccess {
+                Analytics.capture(
+                    Analytics.Event.SET_LOGGED,
+                    mapOf(
+                        "weight" to weight,
+                        "reps" to reps,
+                        "rpe" to rpe,
+                        "rest_seconds" to restSeconds,
+                        "has_note" to (note?.isNotBlank() == true)
+                    )
+                )
             }.onFailure { emitError(it.message ?: "Failed to save set") }
         }
     }
@@ -137,6 +176,8 @@ class ActiveWorkoutViewModel @Inject constructor(
                 workoutRepository.duplicateSet(setId)
                 refreshSuggestion(workoutExerciseId)
                 refreshInsights(workoutExerciseId)
+            }.onSuccess {
+                Analytics.capture(Analytics.Event.SET_DUPLICATED)
             }.onFailure { emitError(it.message ?: "Failed to duplicate set") }
         }
     }
@@ -147,6 +188,8 @@ class ActiveWorkoutViewModel @Inject constructor(
                 workoutRepository.deleteSet(setId)
                 refreshSuggestion(workoutExerciseId)
                 refreshInsights(workoutExerciseId)
+            }.onSuccess {
+                Analytics.capture(Analytics.Event.SET_DELETED)
             }.onFailure { emitError(it.message ?: "Failed to delete set") }
         }
     }
@@ -154,6 +197,12 @@ class ActiveWorkoutViewModel @Inject constructor(
     fun toggleSetCompleted(setId: Long, completed: Boolean) {
         viewModelScope.launch {
             runCatching { workoutRepository.markSetCompleted(setId, completed) }
+                .onSuccess {
+                    Analytics.capture(
+                        Analytics.Event.SET_COMPLETED_TOGGLED,
+                        mapOf("completed" to completed)
+                    )
+                }
                 .onFailure { emitError(it.message ?: "Failed to update set") }
         }
     }
@@ -187,6 +236,7 @@ class ActiveWorkoutViewModel @Inject constructor(
     fun cancelTimer() {
         viewModelScope.launch {
             restTimerManager.cancel()
+            Analytics.capture(Analytics.Event.REST_TIMER_CANCELLED)
         }
     }
 

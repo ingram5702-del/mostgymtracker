@@ -2,6 +2,7 @@ package com.mostgymapp.app.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mostgymapp.app.analytics.Analytics
 import com.mostgymapp.app.domain.model.TemplateDetail
 import com.mostgymapp.app.domain.repository.TemplateRepository
 import com.mostgymapp.app.domain.usecase.CreateTemplateFromWorkoutUseCase
@@ -52,6 +53,11 @@ class TemplatesViewModel @Inject constructor(
             runCatching {
                 createTemplateFromWorkoutUseCase(workoutId, name, note)
                 _events.emit("Template created")
+            }.onSuccess {
+                Analytics.capture(
+                    Analytics.Event.TEMPLATE_CREATED,
+                    mapOf("has_note" to (note?.isNotBlank() == true))
+                )
             }.onFailure {
                 _events.emit(it.message ?: "Failed to create template")
             }
@@ -63,6 +69,8 @@ class TemplatesViewModel @Inject constructor(
             runCatching {
                 templateRepository.deleteTemplate(templateId)
                 _events.emit("Template deleted")
+            }.onSuccess {
+                Analytics.capture(Analytics.Event.TEMPLATE_DELETED)
             }.onFailure {
                 _events.emit(it.message ?: "Failed to delete template")
             }
@@ -74,6 +82,8 @@ class TemplatesViewModel @Inject constructor(
             runCatching {
                 val workoutId = startWorkoutFromTemplateUseCase(templateId)
                 _startWorkoutEvents.emit(workoutId)
+            }.onSuccess {
+                Analytics.capture(Analytics.Event.TEMPLATE_STARTED)
             }.onFailure {
                 _events.emit(it.message ?: "Failed to start template")
             }

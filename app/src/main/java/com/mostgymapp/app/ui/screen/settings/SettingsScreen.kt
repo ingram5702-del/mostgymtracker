@@ -49,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.mostgymapp.app.analytics.Analytics
 
 private const val FEEDBACK_EMAIL = "ingram5702@gmail.com"
 
@@ -199,6 +200,14 @@ fun SettingsScreen(paddingValues: PaddingValues) {
 
             Button(
                 onClick = {
+                    Analytics.capture(
+                        Analytics.Event.FEEDBACK_SENT,
+                        mapOf(
+                            "has_subject" to subject.isNotBlank(),
+                            "message_length" to message.length,
+                            "attachment_count" to attachedFiles.size
+                        )
+                    )
                     sendFeedbackEmail(context, subject, message, attachedFiles)
                     subject = ""
                     message = ""
@@ -238,6 +247,7 @@ fun SettingsScreen(paddingValues: PaddingValues) {
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.clickable {
+                            Analytics.capture(Analytics.Event.PRIVACY_POLICY_OPENED)
                             val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://ingram5702-del.github.io/mostgymtracker/"))
                             context.startActivity(intent)
                         }
