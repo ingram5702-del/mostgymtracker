@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mostgymapp.app.ui.components.EmptyState
+import com.mostgymapp.app.ui.components.WorkoutActivityCard
 import com.mostgymapp.app.ui.viewmodel.HistoryViewModel
 import com.mostgymapp.app.utils.formatDateTime
 import com.mostgymapp.app.utils.formatVolume
@@ -83,8 +84,13 @@ fun HistoryScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(bottom = 8.dp)
+            contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp)
         ) {
+            if (uiState.activity.weeks.isNotEmpty()) {
+                item(key = "activity") {
+                    WorkoutActivityCard(activity = uiState.activity)
+                }
+            }
             items(uiState.items, key = { it.id }) { item ->
                 Card(
                     modifier = Modifier

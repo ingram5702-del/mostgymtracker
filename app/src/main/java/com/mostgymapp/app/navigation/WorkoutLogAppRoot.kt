@@ -7,6 +7,8 @@ import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ViewAgenda
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -45,16 +47,35 @@ fun WorkoutLogAppRoot() {
     val bottomItems = listOf(
         BottomItem(Route.Workout.route, "Workout", Icons.Default.FitnessCenter),
         BottomItem(Route.History.route, "History", Icons.AutoMirrored.Filled.List),
-        BottomItem(Route.Templates.route, "Tmpls", Icons.Default.ViewAgenda),
-        BottomItem(Route.Scanner.route, "Scanner", Icons.Default.QrCodeScanner),
+        BottomItem(Route.Templates.route, "Templates", Icons.Default.ViewAgenda),
         BottomItem(Route.Stats.route, "Stats", Icons.Default.BarChart),
         BottomItem(Route.Settings.route, "Settings", Icons.Default.Settings)
     )
 
+    val fabRoutes = setOf(
+        Route.Workout.route,
+        Route.History.route,
+        Route.Templates.route,
+        Route.Stats.route
+    )
+
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
     Scaffold(
+        floatingActionButton = {
+            if (currentRoute in fabRoutes) {
+                FloatingActionButton(
+                    onClick = { navController.navigate(Route.Scanner.route) },
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 4.dp)
+                ) {
+                    Icon(Icons.Default.QrCodeScanner, contentDescription = "Scan QR")
+                }
+            }
+        },
         bottomBar = {
-            val navBackStackEntry by navController.currentBackStackEntryAsState()
-            val currentRoute = navBackStackEntry?.destination?.route
             NavigationBar(
                 containerColor = MaterialTheme.colorScheme.surface,
                 tonalElevation = 0.dp
